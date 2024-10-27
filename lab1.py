@@ -120,7 +120,6 @@ class Tree_Search:
         return cost_dict[end], path if path_found else None
 
 if __name__ == "__main__":
-    # Đọc file Input.txt và InputUCS.txt
     file_1 = open("Input.txt", "r")
     file_2 = open("InputUCS.txt", "r")
     size_1, start_1, goal_1, matrix_1 = read_txt(file_1)
