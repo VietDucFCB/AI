@@ -7,7 +7,6 @@
 using namespace std;
 #define N 3
 
-// state space tree nodes
 struct Node
 {
     Node* parent; // stores the parent node of the current node
