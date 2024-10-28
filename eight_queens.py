@@ -2,7 +2,7 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Define the cost function and solution checker for 8-queens
+
 def calculate_attacks(queens):
     """Calculate the number of attacking queen pairs."""
     n = len(queens)
