@@ -1,7 +1,7 @@
 from collections import defaultdict
 from queue import Queue, PriorityQueue
 
-# đọc dữ liệu từ file txt
+
 def read_txt(file):
     size = int(file.readline())
     start, goal = [int(num) for num in file.readline().split(' ')]
