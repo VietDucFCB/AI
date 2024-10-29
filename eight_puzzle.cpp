@@ -16,7 +16,7 @@ struct Node
     int level; // stores the number of moves so far
 };
 
-// Function to print N x N matrix
+
 void printMatrix(int mat[N][N])
 {
     for (int i = 0; i < N; i++)
