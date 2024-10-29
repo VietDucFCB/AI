@@ -26,7 +26,6 @@ void printMatrix(int mat[N][N])
     }
 }
 
-
 Node* newNode(int mat[N][N], int x, int y, int newX, int newY, int level, Node* parent)
 {
     Node* node = new Node;
