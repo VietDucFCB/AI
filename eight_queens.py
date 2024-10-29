@@ -2,7 +2,6 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def calculate_attacks(queens):
     """Calculate the number of attacking queen pairs."""
     n = len(queens)
