@@ -12,7 +12,7 @@ def calculate_attacks(queens):
             if queens[i] == queens[j] or abs(queens[i] - queens[j]) == abs(i - j):
                 attacks += 1
     return attacks
-
+    
 def generate_random_board():
     """Generate a random configuration for 8-queens."""
     return [random.randint(0, 7) for _ in range(8)]
