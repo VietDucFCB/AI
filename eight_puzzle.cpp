@@ -7,7 +7,6 @@
 using namespace std;
 #define N 3
 
-// state space tree nodes
 struct Node
 {
     Node* parent; // stores the parent node of the current node
@@ -17,7 +16,6 @@ struct Node
     int level; // stores the number of moves so far
 };
 
-// Function to print N x N matrix
 void printMatrix(int mat[N][N])
 {
     for (int i = 0; i < N; i++)
@@ -28,7 +26,6 @@ void printMatrix(int mat[N][N])
     }
 }
 
-// Function to allocate a new node
 Node* newNode(int mat[N][N], int x, int y, int newX, int newY, int level, Node* parent)
 {
     Node* node = new Node;

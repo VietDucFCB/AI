@@ -2,7 +2,6 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Define the cost function and solution checker for 8-queens
 def calculate_attacks(queens):
     """Calculate the number of attacking queen pairs."""
     n = len(queens)
@@ -12,7 +11,7 @@ def calculate_attacks(queens):
             if queens[i] == queens[j] or abs(queens[i] - queens[j]) == abs(i - j):
                 attacks += 1
     return attacks
-
+    
 def generate_random_board():
     """Generate a random configuration for 8-queens."""
     return [random.randint(0, 7) for _ in range(8)]
