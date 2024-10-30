@@ -117,8 +117,7 @@ class Tree_Search:
                 path.append(node)
             path.reverse()
 
-        return cost_dict[end], path if path_found else None
-
+        return cost_dict[end], path if path_found else Non
 if __name__ == "__main__":
     file_1 = open("Input.txt", "r")
     file_2 = open("InputUCS.txt", "r")
