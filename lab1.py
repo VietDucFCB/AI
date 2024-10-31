@@ -126,7 +126,6 @@ if __name__ == "__main__":
     file_1.close()
     file_2.close()
 
-
     graph_1 = convert_graph(matrix_1)
     graph_2 = convert_graph_weight(matrix_2)
 
