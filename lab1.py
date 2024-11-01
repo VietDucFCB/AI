@@ -125,7 +125,6 @@ if __name__ == "__main__":
     size_2, start_2, goal_2, matrix_2 = read_txt(file_2)
     file_1.close()
     file_2.close()
-
     graph_1 = convert_graph(matrix_1)
     graph_2 = convert_graph_weight(matrix_2)
 
