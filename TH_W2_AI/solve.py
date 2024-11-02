@@ -280,7 +280,6 @@ class Solution():
             next_m, next_c, next_s = number_missionaries + operation * x, number_cannnibals + operation * y, int(
                 not side)
 
-
             if (next_m, next_c, next_s) not in self.visited:
                 if self.is_valid_move(next_m, next_c):
                     can_be_expanded = True
