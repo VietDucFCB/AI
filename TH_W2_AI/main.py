@@ -20,6 +20,7 @@ def main():
 
         output_file_name = f"{solve_method}"
         # Draw legend if legend_flag is set
+
         if legend_flag:
             if legend_flag[0].upper() == 'T':
                 output_file_name += "_legend.png"
