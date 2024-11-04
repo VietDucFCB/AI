@@ -17,6 +17,7 @@ def main():
     if s.solve(solve_method):
         # Display Solution on console
         s.show_solution()
+
         output_file_name = f"{solve_method}"
         # Draw legend if legend_flag is set
         if legend_flag:
