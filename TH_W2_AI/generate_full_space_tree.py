@@ -133,7 +133,6 @@ def generate():
             v.set_fillcolor("gray")
     return False
 
-
 if __name__ == "__main__":
     if generate():
         write_image()
