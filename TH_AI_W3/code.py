@@ -157,6 +157,7 @@ if __name__ == "__main__":
         print("GBFS => ", gbfs)
         print("ASTAR => ", astar)
 
+
         drawMap(city, gbfs, astar, graph)
 
 
