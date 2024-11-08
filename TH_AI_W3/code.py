@@ -85,7 +85,6 @@ def Astar(start_node, heuristics, graph, goal_node):
     priority_queue.put((heuristics[start_node] + distance, [start_node, 0]))
 
     path = []
-
     while priority_queue.empty() == False:
         current = priority_queue.get()[1]
 
