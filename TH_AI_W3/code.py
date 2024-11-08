@@ -95,6 +95,7 @@ def Astar(start_node, heuristics, graph, goal_node):
 
         if current[0] == goal_node:
             break
+
         priority_queue = queue.PriorityQueue()
 
         for i in graph[current[0]]:
