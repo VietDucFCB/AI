@@ -85,6 +85,7 @@ def Astar(start_node, heuristics, graph, goal_node):
     priority_queue.put((heuristics[start_node] + distance, [start_node, 0]))
 
     path = []
+
     while priority_queue.empty() == False:
         current = priority_queue.get()[1]
 
@@ -102,6 +103,54 @@ def Astar(start_node, heuristics, graph, goal_node):
                 priority_queue.put((heuristics[i[0]] + int(i[1]) + distance, i))
 
     return path
+
+def AstarV2(start_node, heuristics, graph, goal_node):
+    OPEN = queue.PriorityQueue()
+    CLOSE = set()
+
+    # Khởi tạo g, f và hàng đợi OPEN
+    g = {start_node: 0}
+    f = {start_node: heuristics[start_node]}
+    OPEN.put((f[start_node], start_node))
+
+    # Dictionary cha để tái tạo lại đường đi
+    parent = {start_node: None}
+
+    while not OPEN.empty():
+        # Lấy nút có giá trị f thấp nhất
+        current_cost, current_node = OPEN.get()
+
+        # Nếu đạt tới nút đích, tái tạo đường đi
+        if current_node == goal_node:
+            path = []
+            while current_node is not None:
+                path.append(current_node)
+                current_node = parent[current_node]
+            return path[::-1]
+
+        # Thêm nút vào CLOSE
+        CLOSE.add(current_node)
+
+        # Khám phá các nút lân cận
+        for neighbor, cost in graph[current_node]:
+            if neighbor in CLOSE:
+                continue  # Bỏ qua nếu nút đã có trong CLOSE
+
+            tentative_g = g[current_node] + int(cost)
+
+            # Nếu nút lân cận chưa trong OPEN hoặc tìm thấy đường ngắn hơn
+            if neighbor not in g or tentative_g < g[neighbor]:
+                # Cập nhật giá trị g và f
+                g[neighbor] = tentative_g
+                f[neighbor] = tentative_g + heuristics[neighbor]
+                parent[neighbor] = current_node  # Theo dõi đường đi
+
+                # Thêm vào OPEN với giá trị f đã cập nhật
+                OPEN.put((f[neighbor], neighbor))
+
+    # Nếu không đạt tới nút đích
+    return None
+
 
 def drawMap(city, gbfs, astar, graph):
     for i, j in city.items():
@@ -150,13 +199,15 @@ if __name__ == "__main__":
 
         if inputCode1 == 0 or inputCode2 == 0:
             break
-
         startCity = citiesCode[inputCode1]
         endCity = citiesCode[inputCode2]
 
         gbfs = GBFS(startCity, heuristics, graph, endCity)
         astar = Astar(startCity, heuristics, graph, endCity)
+        astarV2 = AstarV2(startCity, heuristics, graph, endCity)
         print("GBFS => ", gbfs)
         print("ASTAR => ", astar)
+        print("ASTAR V2 => ", astarV2)
 
         drawMap(city, gbfs, astar, graph)
+        drawMap(city, gbfs, astarV2, graph)
