@@ -203,7 +203,6 @@ if __name__ == "__main__":
         startCity = citiesCode[inputCode1]
         endCity = citiesCode[inputCode2]
 
-
         gbfs = GBFS(startCity, heuristics, graph, endCity)
         astar = Astar(startCity, heuristics, graph, endCity)
         astarV2 = AstarV2(startCity, heuristics, graph, endCity)
