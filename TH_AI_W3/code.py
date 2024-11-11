@@ -199,6 +199,7 @@ if __name__ == "__main__":
 
         if inputCode1 == 0 or inputCode2 == 0:
             break
+
         startCity = citiesCode[inputCode1]
         endCity = citiesCode[inputCode2]
 
