@@ -215,5 +215,6 @@ if __name__ == "__main__":
         print("ASTAR => ", astar)
         print("ASTAR V2 => ", astarV2)
 
+
         drawMap(city, gbfs, astar, graph)
         drawMap(city, gbfs, astarV2, graph)
