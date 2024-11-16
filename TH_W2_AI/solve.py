@@ -243,7 +243,6 @@ class Solution():
                         Move[(next_m, next_c, next_s)] = (x, y, side)
                         node_list[(next_m, next_c, next_s)] = v
 
-
             if not can_be_expanded:
                 v.set_style("filled")
                 v.set_fillcolor("gray")
