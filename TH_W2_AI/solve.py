@@ -250,7 +250,6 @@ class Solution():
 
         return False
 
-
     def dfs(self, number_missionaries, number_cannnibals, side, depth_level):
         self.visited[(number_missionaries, number_cannnibals, side)] = True
 
