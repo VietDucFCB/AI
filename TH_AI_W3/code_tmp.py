@@ -104,6 +104,7 @@ def Astar(start_node, heuristics, graph, goal_node):
 
     return path
 
+
 def drawMap(city, gbfs, astar, graph):
     for i, j in city.items():
         plt.plot(j[0],j[1], "ro")
