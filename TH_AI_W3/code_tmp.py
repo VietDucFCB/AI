@@ -91,6 +91,7 @@ def Astar(start_node, heuristics, graph, goal_node):
 
         path.append(current[0])
 
+
         distance += int(current[1])
 
         if current[0] == goal_node:
