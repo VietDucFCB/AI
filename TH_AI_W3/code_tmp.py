@@ -137,7 +137,6 @@ def drawMap(city, gbfs, astar, graph):
 
     plt.show()
 
-
 if __name__ == "__main__":
     heuristics = getHeuristics()
     graph = createGraph()
