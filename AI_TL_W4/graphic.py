@@ -200,11 +200,70 @@ def search(graph, start, goal, func):
 a_star = lambda graph, i: i.g + graph.h(i)
 greedy = lambda graph, i: graph.h(i)
 
+def bfs(graph, start, goal):
+    visited = set()
+    queue = Queue()
+    queue.put(start)
+    start.pre = None
+
+    while not queue.empty():
+        node = queue.get()
+        if node == goal:
+            return node
+        visited.add(node)
+        for neighbor in graph.can_see(node):
+            if neighbor not in visited:
+                neighbor.pre = node
+                queue.put(neighbor)
+    return None
+
+
+# DFS
+def dfs(graph, start, goal):
+    visited = set()
+    stack = [start]
+    start.pre = None
+
+    while stack:
+        node = stack.pop()
+        if node == goal:
+            return node
+        visited.add(node)
+        for neighbor in graph.can_see(node):
+            if neighbor not in visited:
+                neighbor.pre = node
+                stack.append(neighbor)
+    return None
+
+
+def ucs(graph, start, goal):
+    visited = set()
+    queue = PriorityQueue()
+    queue.put((0, start))
+    start.g = 0
+    start.pre = None
+
+    while not queue.empty():
+        cost, node = queue.get()
+        if node == goal:
+            return node
+        visited.add(node)
+        for neighbor in graph.can_see(node):
+            new_cost = node.g + euclid_distance(node, neighbor)
+            if neighbor not in visited or new_cost < neighbor.g:
+                neighbor.g = new_cost
+                neighbor.pre = node
+                queue.put((new_cost, neighbor))
+    return None
+
+
 def main():
+    # Đọc dữ liệu từ file
     n_polygon = 0
     poly_list = list(list())
     x = list()
     y = list()
+
     with open('Input.txt', 'r') as f:
         line = f.readline()
         line = line.strip()
@@ -218,45 +277,64 @@ def main():
             point_list = list()
             line = line.split()
             n_vertex = int(line[0])
-            for j in range(0, 2*n_vertex, 2):
+            for j in range(0, 2 * n_vertex, 2):
                 point_list.append(Point(int(line[j + 1]), int(line[j + 2])))
             poly_list.append(point_list[:])
         poly_list.append([goal])
+
+        # Tạo đồ thị
         graph = Graph(poly_list)
         graph.heuristic = {point: point.heuristic(goal) for point in graph.get_points()}
 
-        a = search(graph, start, goal, a_star)
+    # Danh sách các thuật toán cần chạy
+    algorithms = {
+        "DFS": dfs,
+        "BFS": bfs,
+        "UCS": ucs,
+    }
 
-        result = list()
+    # Thực thi từng thuật toán
+    for name, algo in algorithms.items():
+        print(f"Running {name}...")
+        result_node = algo(graph, start, goal)
 
-        while a:
-            result.append(a)
-            a = a.pre
-        result.reverse()
-        print_res = [[point, point.polygon_id] for point in result]
-        print(*print_res, sep=' ->')
+        # Tính đường đi từ kết quả
+        result_path = []
+        while result_node:
+            result_path.append(result_node)
+            result_node = result_node.pre
+        result_path.reverse()
+
+        # In kết quả đường đi
+        print(f"Result for {name}:")
+        print_res = [[point, point.polygon_id] for point in result_path]
+        print(" -> ".join(map(str, print_res)))
+
+        # Vẽ đồ thị và đường đi
         plt.figure()
-        plt.plot([start.x], [start.y], 'ro')
-        plt.plot([goal.x], [goal.y], 'ro')
+        plt.title(name)
+        plt.plot([start.x], [start.y], 'ro', label="Start")
+        plt.plot([goal.x], [goal.y], 'go', label="Goal")
 
         for point in graph.get_points():
             x.append(point.x)
             y.append(point.y)
-        plt.plot(x, y, 'ro')
-        for i in range(1, len(poly_list) - 1):
-            coord = list()
-            for point in poly_list[i]:
-                coord.append([point.x, point.y])
-            coord.append(coord[0])
-            xs, ys = zip(*coord) # create lists of x and y values
-            plt.plot(xs, ys)
+        plt.plot(x, y, 'ro', alpha=0.3)
         x = list()
         y = list()
-        for point in result:
 
-            x.append(point.x)
-            y.append(point.y)
-        plt.plot(x, y, 'b', linewidth=2.0)
+        for i in range(1, len(poly_list) - 1):
+            coord = [[point.x, point.y] for point in poly_list[i]]
+            coord.append(coord[0])  # Đóng vòng lặp
+            xs, ys = zip(*coord)
+            plt.plot(xs, ys, 'k-', alpha=0.5)
+
+        # Vẽ đường đi tìm được
+        x = [point.x for point in result_path]
+        y = [point.y for point in result_path]
+        plt.plot(x, y, 'b-', linewidth=2.0, label="Path")
+        plt.legend()
         plt.show()
+
 if __name__ == "__main__":
     main()

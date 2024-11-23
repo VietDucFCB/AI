@@ -210,35 +210,44 @@ def euclid_distance(point1, point2):
     return round(float(math.sqrt((point2.x - point1.x)**2 + (point2.y - point1.y)**2)), 3)
 
 def do_edges_intersect(edge1, edge2):
-        def orientation(p, q, r):
-            val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y)
-            if val == 0:
-                return 0
-            return 1 if val > 0 else 2
-    
-        def on_segment(p, q, r):
-            return (q.x <= max(p.x, r.x) and q.x >= min(p.x, r.x) and
-                    q.y <= max(p.y, r.y) and q.y >= min(p.y, r.y))
+    def orientation(p, q, r):
+        # Tính toán định hướng
+        val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y)
+        if val == 0:
+            return 0  # Đồng phẳng
+        return 1 if val > 0 else 2  # Trái hoặc phải
 
-        p1, q1 = edge1.p1, edge1.p2
-        p2, q2 = edge2.p1, edge2.p2
+    def is_collinear_and_on_segment(p, q, r):
+        # Kiểm tra điểm q có nằm trên đoạn pr không nếu đồng phẳng
+        return (q.x <= max(p.x, r.x) and q.x >= min(p.x, r.x) and
+                q.y <= max(p.y, r.y) and q.y >= min(p.y, r.y))
 
-        o1 = orientation(p1, q1, p2)
-        o2 = orientation(p1, q1, q2)
-        o3 = orientation(p2, q2, p1)
-        o4 = orientation(p2, q2, q1)
+    # Lấy các điểm từ hai cạnh
+    p1, q1 = edge1.p1, edge1.p2
+    p2, q2 = edge2.p1, edge2.p2
 
-        # Trường hợp tổng quát
-        if o1 != o2 and o3 != o4:
-            return True
+    # Tính định hướng cho từng bộ ba điểm
+    orientations = [
+        orientation(p1, q1, p2),  # o1
+        orientation(p1, q1, q2),  # o2
+        orientation(p2, q2, p1),  # o3
+        orientation(p2, q2, q1)   # o4
+    ]
 
-        # Special cases
-        if o1 == 0 and on_segment(p1, p2, q1): return True
-        if o2 == 0 and on_segment(p1, q2, q1): return True
-        if o3 == 0 and on_segment(p2, p1, q2): return True
-        if o4 == 0 and on_segment(p2, q1, q2): return True
+    # Kiểm tra trường hợp tổng quát (hai cạnh giao nhau)
+    if orientations[0] != orientations[1] and orientations[2] != orientations[3]:
+        return True
 
-        return False
+    # Kiểm tra các trường hợp đặc biệt khi các điểm đồng phẳng
+    special_cases = [
+        (orientations[0] == 0 and is_collinear_and_on_segment(p1, p2, q1)),
+        (orientations[1] == 0 and is_collinear_and_on_segment(p1, q2, q1)),
+        (orientations[2] == 0 and is_collinear_and_on_segment(p2, p1, q2)),
+        (orientations[3] == 0 and is_collinear_and_on_segment(p2, q1, q2))
+    ]
+
+    return any(special_cases)
+
 
 # Thuật toán tìm đường chung
 def search(graph, start, goal, func):
@@ -260,6 +269,7 @@ def search(graph, start, goal, func):
                 new_cost = func(graph, i)
                 queue.put((new_cost, i))
     return node
+
 
 # BFS
 def bfs(graph, start, goal):
@@ -298,7 +308,6 @@ def dfs(graph, start, goal):
     return None
 
 
-
 # UCS
 def ucs(graph, start, goal):
     visited = set()
@@ -321,90 +330,74 @@ def ucs(graph, start, goal):
     return None
 
 
+# Hàm in kết quả
+def print_result(result_node):
+    result = []
+    while result_node:
+        result.append(result_node)
+        result_node = result_node.pre
+    result.reverse()
+    print_res = [[point, point.polygon_id] for point in result]
+    print("Đường đi tìm được:", *print_res, sep=' -> ')
+    return result
+
+
+# Hàm hiển thị kết quả
+def visualize(graph, poly_list, start, goal, result, title, ax):
+    ax.set_title(title)
+    ax.plot([start.x], [start.y], 'ro', label="Start")
+    ax.plot([goal.x], [goal.y], 'ro', label="Goal")
+
+    for i in range(1, len(poly_list) - 1):
+        coord = [(p.x, p.y) for p in poly_list[i]] + [(poly_list[i][0].x, poly_list[i][0].y)]
+        xs, ys = zip(*coord)
+        ax.plot(xs, ys)
+
+    path_x = [p.x for p in result]
+    path_y = [p.y for p in result]
+    ax.plot(path_x, path_y, 'b', linewidth=2.0, label="Path")
+    ax.legend()
 
 
 # Hàm chính
 def main():
     n_polygon = 0
-    poly_list = list(list())
-    x = list()
-    y = list()
-    
+    poly_list = []
+
     with open('Input.txt', 'r') as f:
-        line = f.readline()
-        line = line.strip()
-        line = line.split()
-        line = list(map(int, line))
-        n_polygon = line[0]
-        start = Point(line[1], line[2])
-        goal = Point(line[3], line[4])
+        line = f.readline().strip().split()
+        n_polygon = int(line[0])
+        start = Point(int(line[1]), int(line[2]))
+        goal = Point(int(line[3]), int(line[4]))
         poly_list.append([start])
         for line in f:
-            point_list = list()
-            line = line.split()
-            n_vertex = int(line[0])
-            for j in range(0, 2 * n_vertex, 2):
-                point_list.append(Point(int(line[j + 1]), int(line[j + 2])))
-            poly_list.append(point_list[:])
+            points = line.split()
+            n_vertex = int(points[0])
+            poly_list.append([Point(int(points[i + 1]), int(points[i + 2])) for i in range(0, 2 * n_vertex, 2)])
         poly_list.append([goal])
-        graph = Graph(poly_list)
-        graph.heuristic = {point: point.heuristic(goal) for point in graph.get_points()}
 
-    # Chọn thuật toán
-    print("Chọn thuật toán: ")
-    print("1. BFS")
-    print("2. DFS")
-    print("3. UCS")
-    choice = int(input("Nhập lựa chọn (1-3): "))
+    graph = Graph(poly_list)
+    graph.heuristic = {point: point.heuristic(goal) for point in graph.get_points()}
 
-    if choice == 1:
-        result_node = bfs(graph, start, goal)
-    elif choice == 2:
-        result_node = dfs(graph, start, goal)
-    elif choice == 3:
-        result_node = ucs(graph, start, goal)
-    else:
-        print("Lựa chọn không hợp lệ!")
-        return
+    # Thực hiện BFS, DFS, UCS
+    algorithms = {"BFS": bfs, "DFS": dfs, "UCS": ucs}
+    results = {}
 
-    # Lấy kết quả và hiển thị
-    result = list()
-    while result_node:
-        result.append(result_node)
-        result_node = result_node.pre
-    result.reverse()
-    
-    print_res = [[point, point.polygon_id] for point in result]
-    print("Đường đi tìm được:", *print_res, sep=' ->')
+    for algo_name, algo_func in algorithms.items():
+        print(f"Chạy thuật toán {algo_name}:")
+        result_node = algo_func(graph, start, goal)
+        result_path = print_result(result_node)
+        results[algo_name] = result_path
 
-    # Vẽ đồ thị
-    plt.figure()
-    plt.plot([start.x], [start.y], 'ro', label="Start")
-    plt.plot([goal.x], [goal.y], 'ro', label="Goal")
+    # Vẽ kết quả
+    fig, axes = plt.subplots(1, 3, figsize=(17, 5))
+    for idx, (algo_name, result) in enumerate(results.items()):
+        visualize(graph, poly_list, start, goal, result, algo_name, axes[idx])
 
-    for point in graph.get_points():
-        x.append(point.x)
-        y.append(point.y)
-    plt.plot(x, y, 'ro')
-    
-    for i in range(1, len(poly_list) - 1):
-        coord = list()
-        for point in poly_list[i]:
-            coord.append([point.x, point.y])
-        coord.append(coord[0])
-        xs, ys = zip(*coord)
-        plt.plot(xs, ys)
-        
-    x = list()
-    y = list()
-    for point in result:
-        x.append(point.x)
-        y.append(point.y)
-    plt.plot(x, y, 'b', linewidth=2.0, label="Path")
-    plt.legend()
+    plt.tight_layout()
     plt.show()
+
 
 if __name__ == "__main__":
     main()
-
 
