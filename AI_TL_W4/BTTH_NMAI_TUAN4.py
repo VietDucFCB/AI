@@ -1,14 +1,40 @@
 from collections import defaultdict
-from queue import Queue,PriorityQueue
+from queue import PriorityQueue
 import math
 from matplotlib import pyplot as plt
+
+greedy = lambda graph, i: graph.h(i)
+a_star = lambda graph, i: i.g + graph.h(i)
+
+def euclid_distance(point1, point2):
+    return round(float(math.sqrt((point2.x - point1.x) ** 2 + (point2.y - point1.y) ** 2)), 3)
+
+def search(graph, start, goal, func):
+    closed = set()
+    queue = PriorityQueue()
+    queue.put((0 + func(graph, start), start))
+    closed.add(start)
+
+    while not queue.empty():
+        cost, node = queue.get()
+        print(f'Processing node: {node} with cost: {cost}')  # Debug
+        if node == goal:
+            return node
+        for i in graph.can_see(node):
+            new_cost = node.g + euclid_distance(node, i)
+            if i not in closed or new_cost < i.g:
+                closed.add(i)
+                i.g = new_cost
+                i.pre = node
+                queue.put((new_cost + func(graph, i), i))
+    return None  # Explicitly return None if no path is found
 
 class Point(object):
     def __init__(self, x, y, polygon_id=-1):
         self.x = x
         self.y = y
         self.polygon_id = polygon_id
-        self.g = 0
+        self.g = 0  # Cost-related attribute
         self.pre = None
 
     def rel(self, other, line):
@@ -57,24 +83,29 @@ class Edge(object):
         if point == self.p2:
             return self.p1
 
+
     def d(self, point):
         vect_a = Point(self.p2.x - self.p1.x, self.p2.y - self.p1.y)
         vect_n = Point(-vect_a.y, vect_a.x)
         return vect_n.x * (point.x - self.p1.x) + vect_n.y * (point.y - self.p1.y)
 
+
     def __str__(self):
         return "({}, {})".format(self.p1, self.p2)
+
 
     def __contains__(self, point):
         return self.p1 == point or self.p2 == point
 
+
     def __hash__(self):
         return self.p1.__hash__() ^ self.p2.__hash__()
+
 
     def __repr__(self):
         return "Edge({!r}, {!r})".format(self.p1, self.p2)
 
-class Graph:
+class Graph(object):
     def __init__(self, polygons):
         self.graph = defaultdict(set)
         self.edges = set()
@@ -98,30 +129,36 @@ class Graph:
                     pid += 1
 
     def get_adjacent_points(self, point):
-        return list(filter(None.__ne__, [edge.get_adjacent(point) for edge in self.edges]))
+            return list(filter(None.__ne__, [edge.get_adjacent(point) for edge in self.edges]))
 
     def can_see(self, start):
-        see_list = list()
-        cant_see_list = list()
+        see_list = []
+        cant_see_list = []
 
-        for polygon in self.polygons:
-            for edge in self.polygons[polygon]:
-                for point in self.get_points():
-                    if start == point:
+        # Initial assessment of visibility
+        # Check all points for visibiality from the start point
+        for point in self.get_points():
+            if start == point:
+                print(f"{start} is the same as {point}, skipping...")
+                cant_see_list.append(point)
+                continue
+
+            is_visible = True
+            for polygon in self.polygons:
+                for edge in self.polygons[polygon]:
+                    if not start.can_see(point, edge):
+                        is_visible = False
                         cant_see_list.append(point)
-                    if start in self.get_polygon_points(polygon):
-                        for poly_point in self.get_polygon_points(polygon):
-                            if poly_point not in self.get_adjacent_points(start):
-                                cant_see_list.append(poly_point)
-                    if point not in cant_see_list:
-                        if start.can_see(point, edge):
-                            if point not in see_list:
-                                see_list.append(point)
-                        elif point in see_list:
-                            see_list.remove(point)
-                            cant_see_list.append(point)
-                        else:
-                            cant_see_list.append(point)
+                        print(f"{start} cannot see {point} due to edge {edge}, adding to cant_see_list directly")
+                        break
+                if not is_visible:
+                    break
+
+            if is_visible and point not in cant_see_list:
+                print(f"{start} can see {point}, adding to see_list")
+                see_list.append(point)
+
+        print(f'Point {start} can see: {see_list}')
         return see_list
 
     def get_polygon_points(self, index):
@@ -135,7 +172,7 @@ class Graph:
         return list(self.graph)
 
     def get_edges(self):
-        return list(self.edges)
+        return self.edges
 
     def add_point(self, point):
         self.graph[point].add(point)
@@ -175,36 +212,14 @@ class Graph:
         else:
             return -1
 
-def euclid_distance(point1, point2):
-    return round(float(math.sqrt((point2.x - point1.x)**2 + (point2.y - point1.y)**2)), 3)
 
-def search(graph, start, goal, func):
-    closed = set()
-    queue = PriorityQueue()
-    queue.put((0 + func(graph, start), start))
-    if start not in closed:
-        closed.add(start)
-    while not queue.empty():
-        cost, node = queue.get()
-        if node == goal:
-            return node
-        for i in graph.can_see(node):
-            new_cost = node.g + euclid_distance(node, i)
-            if i not in closed or new_cost < i.g:
-                closed.add(i)
-                i.g = new_cost
-                i.pre = node
-                new_cost = func(graph, i)
-                queue.put((new_cost, i))
-    return node
-a_star = lambda graph, i: i.g + graph.h(i)
-greedy = lambda graph, i: graph.h(i)
 
 def main():
     n_polygon = 0
     poly_list = list(list())
     x = list()
     y = list()
+
     with open('Input.txt', 'r') as f:
         line = f.readline()
         line = line.strip()
@@ -218,45 +233,69 @@ def main():
             point_list = list()
             line = line.split()
             n_vertex = int(line[0])
-            for j in range(0, 2*n_vertex, 2):
+            for j in range(0, 2 * n_vertex, 2):
                 point_list.append(Point(int(line[j + 1]), int(line[j + 2])))
             poly_list.append(point_list[:])
         poly_list.append([goal])
-        graph = Graph(poly_list)
-        graph.heuristic = {point: point.heuristic(goal) for point in graph.get_points()}
 
-        a = search(graph, start, goal, a_star)
+    print(f'Plot points read: {line}')
+    print(f'Number of polygons: {n_polygon}')
+    print(f'Start: {start}')
+    print(f'Goal: {goal}')
+    for poly in poly_list:
+        print(f'Polygon: {poly}')
 
-        result = list()
+    graph = Graph(poly_list)
+    graph.heuristic = {point: point.heuristic(goal) for point in graph.get_points()}
 
-        while a:
-            result.append(a)
-            a = a.pre
-        result.reverse()
-        print_res = [[point, point.polygon_id] for point in result]
-        print(*print_res, sep=' ->')
-        plt.figure()
-        plt.plot([start.x], [start.y], 'ro')
-        plt.plot([goal.x], [goal.y], 'ro')
+    print("Graph points:")
+    for point in graph.get_points():
+        print(point)
+    print("Graph edges:")
+    for edge in graph.get_edges():
+        print(edge)
 
-        for point in graph.get_points():
-            x.append(point.x)
-            y.append(point.y)
+    a_path_result = search(graph, start, goal, a_star)
+    gbfs_path_result = search(graph, start, goal, greedy)
+
+    print(f'A* Search Result: {a_path_result}')
+    print(f'Greedy Search Result: {gbfs_path_result}')
+
+    result = []
+    while a_path_result:
+        result.append(a_path_result)
+        a_path_result = a_path_result.pre
+    result.reverse()
+    print_res = [[point, point.polygon_id] for point in result]
+    print("Result Path:", print_res)
+
+    plt.figure()
+    plt.plot([start.x], [start.y], 'ro')
+    plt.plot([goal.x], [goal.y], 'ro')
+
+    for point in graph.get_points():
+        x.append(point.x)
+        y.append(point.y)
         plt.plot(x, y, 'ro')
-        for i in range(1, len(poly_list) - 1):
-            coord = list()
-            for point in poly_list[i]:
-                coord.append([point.x, point.y])
-            coord.append(coord[0])
-            xs, ys = zip(*coord) # create lists of x and y values
-            plt.plot(xs, ys)
-        x = list()
-        y = list()
-        for point in result:
+    for i in range(1, len(poly_list) - 1):
+        coord = []
+        for point in poly_list[i]:
+            coord.append([point.x, point.y])
+        coord.append(coord[0])
+        xs, ys = zip(*coord)  # create lists of x and y values
+        plt.plot(xs, ys)
 
-            x.append(point.x)
-            y.append(point.y)
-        plt.plot(x, y, 'b', linewidth=2.0)
-        plt.show()
-if __name__ == "__main__":
+    x = []
+    y = []
+    for point in result:
+        x.append(point.x)
+        y.append(point.y)
+    print("Path Coordinates X:", x)
+    print("Path Coordinates Y:", y)
+    plt.plot(x, y, 'b', linewidth=2.0)
+    plt.show()
+
+
+if __name__ == '__main__':
     main()
+
