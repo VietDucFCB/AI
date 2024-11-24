@@ -288,6 +288,8 @@ def main():
 
     # Danh sách các thuật toán cần chạy
     algorithms = {
+        "A* Search": lambda g, s, t: search(g, s, t, a_star),
+        "Greedy Search": lambda g, s, t: search(g, s, t, greedy),
         "DFS": dfs,
         "BFS": bfs,
         "UCS": ucs,

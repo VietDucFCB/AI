@@ -3,6 +3,7 @@ from queue import Queue, PriorityQueue
 import math
 from matplotlib import pyplot as plt
 
+
 # Classes: Point, Edge, Graph (giữ nguyên từ phiên bản gốc)
 class Point(object):
     def __init__(self, x, y, polygon_id=-1):
@@ -47,6 +48,7 @@ class Point(object):
     def __repr__(self):
         return "(%d, %d)" % (self.x, self.y)
 
+
 class Edge(object):
     def __init__(self, point1, point2):
         self.p1 = point1
@@ -74,6 +76,7 @@ class Edge(object):
 
     def __repr__(self):
         return "Edge({!r}, {!r})".format(self.p1, self.p2)
+
 
 class Graph:
     def __init__(self, polygons):
@@ -103,7 +106,7 @@ class Graph:
 
     def can_see(self, start):
         see_list = list()
-        
+
         # Nếu điểm start thuộc một đa giác
         if start.polygon_id != -1:
             # Thêm các điểm kề với start trong cùng đa giác
@@ -111,24 +114,24 @@ class Graph:
             for point in self.get_adjacent_points(start):
                 if point in current_polygon_points:
                     see_list.append(point)
-            
+
             # Kiểm tra tầm nhìn tới các điểm của đa giác khác
             for point in self.get_points():
                 if point != start and point.polygon_id != start.polygon_id:
                     path_clear = True
                     path_line = Edge(start, point)
-                    
+
                     # Kiểm tra giao cắt với tất cả các đa giác
                     for polygon in self.polygons.values():
                         for edge in polygon:
-                            if (edge.p1 != start and edge.p2 != start and 
-                                edge.p1 != point and edge.p2 != point):
+                            if (edge.p1 != start and edge.p2 != start and
+                                    edge.p1 != point and edge.p2 != point):
                                 if do_edges_intersect(path_line, edge):
                                     path_clear = False
                                     break
                         if not path_clear:
                             break
-                    
+
                     if path_clear:
                         see_list.append(point)
         else:
@@ -137,23 +140,22 @@ class Graph:
                 if point != start:
                     path_clear = True
                     path_line = Edge(start, point)
-                    
+
                     for polygon in self.polygons.values():
                         for edge in polygon:
-                            if (edge.p1 != start and edge.p2 != start and 
-                                edge.p1 != point and edge.p2 != point):
+                            if (edge.p1 != start and edge.p2 != start and
+                                    edge.p1 != point and edge.p2 != point):
                                 if do_edges_intersect(path_line, edge):
                                     path_clear = False
                                     break
                         if not path_clear:
                             break
-                    
+
                     if path_clear:
                         see_list.append(point)
-        
+
         return see_list
 
-   
     def get_polygon_points(self, index):
         point_set = set()
         for edge in self.polygons[index]:
@@ -205,6 +207,7 @@ class Graph:
         else:
             return -1
 
+
 def do_edges_intersect(edge1, edge2):
     def orientation(p, q, r):
         # Tính toán định hướng
@@ -212,6 +215,7 @@ def do_edges_intersect(edge1, edge2):
         if val == 0:
             return 0  # Đồng phẳng
         return 1 if val > 0 else 2  # Trái hoặc phải
+
     def is_collinear_and_on_segment(p, q, r):
         # Kiểm tra điểm q có nằm trên đoạn pr không nếu đồng phẳng
         return (q.x <= max(p.x, r.x) and q.x >= min(p.x, r.x) and
@@ -226,7 +230,7 @@ def do_edges_intersect(edge1, edge2):
         orientation(p1, q1, p2),  # o1
         orientation(p1, q1, q2),  # o2
         orientation(p2, q2, p1),  # o3
-        orientation(p2, q2, q1)   # o4
+        orientation(p2, q2, q1)  # o4
     ]
 
     # Kiểm tra trường hợp tổng quát (hai cạnh giao nhau)
@@ -243,9 +247,10 @@ def do_edges_intersect(edge1, edge2):
 
     return any(special_cases)
 
+
 # Hàm tính khoảng cách Euclid
 def euclid_distance(point1, point2):
-    return round(float(math.sqrt((point2.x - point1.x)**2 + (point2.y - point1.y)**2)), 3)
+    return round(float(math.sqrt((point2.x - point1.x) ** 2 + (point2.y - point1.y) ** 2)), 3)
 
 
 # Thuật toán tìm đường chung
@@ -268,8 +273,11 @@ def search(graph, start, goal, func):
                 new_cost = func(graph, i)
                 queue.put((new_cost, i))
     return node
+
+
 a_star = lambda graph, i: i.g + graph.h(i)
 greedy = lambda graph, i: graph.h(i)
+
 
 # BFS
 def bfs(graph, start, goal):
@@ -329,6 +337,7 @@ def ucs(graph, start, goal):
                 queue.put((new_cost, neighbor))
     return None
 
+
 # Greedy Search
 def greedy_search(graph, start, goal):
     visited = set()
@@ -346,6 +355,7 @@ def greedy_search(graph, start, goal):
                 neighbor.pre = node
                 queue.put((neighbor.heuristic(goal), neighbor))
     return None
+
 
 # Hàm in kết quả
 def print_result(result_node):
@@ -376,53 +386,146 @@ def visualize(graph, poly_list, start, goal, result, title, ax):
     ax.legend()
 
 
+import matplotlib.pyplot as plt
+import math
+from collections import defaultdict
 
-# Hàm chính
+
+class VisibilityGraphAnalyzer:
+    def __init__(self, graph, start, goal):
+        self.graph = graph
+        self.start = start
+        self.goal = goal
+        self.visibility_graph = defaultdict(list)
+        self.distances = defaultdict(dict)
+
+    def calculate_visibility_graph(self):
+        """Tính toán đồ thị khả kiến và khoảng cách giữa các điểm có thể nhìn thấy nhau"""
+        all_points = self.graph.get_points()
+
+        for point in all_points:
+            visible_points = self.graph.can_see(point)
+            self.visibility_graph[point] = visible_points
+
+            for visible_point in visible_points:
+                distance = self.calculate_distance(point, visible_point)
+                self.distances[point][visible_point] = distance
+
+    def calculate_distance(self, point1, point2):
+        """Tính khoảng cách Euclid giữa hai điểm"""
+        return math.sqrt((point2.x - point1.x) ** 2 + (point2.y - point1.y) ** 2)
+
+    def visualize(self):
+        """Vẽ đồ thị khả kiến với matplotlib - phiên bản rõ ràng hơn"""
+        fig, ax = plt.subplots(figsize=(12, 8))
+
+        # Vẽ các cạnh của đồ thị khả kiến với độ dày và màu sắc rõ ràng hơn
+        for point, visible_points in self.visibility_graph.items():
+            for visible_point in visible_points:
+                # Vẽ đường nối giữa các điểm
+                ax.plot([point.x, visible_point.x],
+                        [point.y, visible_point.y],
+                        color='#2196F3',  # Màu xanh dương đẹp
+                        linewidth=1.5,  # Độ dày đường
+                        alpha=0.7,  # Độ trong suốt
+                        zorder=1)  # Đặt ở lớp dưới các điểm
+
+                # Hiển thị khoảng cách
+                mid_x = (point.x + visible_point.x) / 2
+                mid_y = (point.y + visible_point.y) / 2
+                distance = self.distances[point][visible_point]
+
+                # Vẽ khoảng cách với background trắng để dễ đọc
+                bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8)
+                ax.annotate(f'{distance:.1f}',
+                            (mid_x, mid_y),
+                            textcoords="offset points",
+                            xytext=(0, 5),
+                            ha='center',
+                            bbox=bbox_props,
+                            fontsize=9,
+                            zorder=2)
+
+        # Vẽ các điểm với kích thước lớn hơn và màu sắc rõ ràng
+        for point in self.visibility_graph.keys():
+            if point == self.start:
+                ax.plot(point.x, point.y, 'o',
+                        color='#4CAF50',  # Màu xanh lá
+                        markersize=12,
+                        label='Start',
+                        zorder=3)
+            elif point == self.goal:
+                ax.plot(point.x, point.y, 'o',
+                        color='#F44336',  # Màu đỏ
+                        markersize=12,
+                        label='Goal',
+                        zorder=3)
+            else:
+                ax.plot(point.x, point.y, 'o',
+                        color='#FFC107',  # Màu vàng
+                        markersize=8,
+                        zorder=3)
+
+            # Hiển thị tọa độ điểm với background trắng
+            bbox_props = dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8)
+            ax.annotate(f'({point.x}, {point.y})',
+                        (point.x, point.y),
+                        textcoords="offset points",
+                        xytext=(0, 10),
+                        ha='center',
+                        bbox=bbox_props,
+                        fontsize=9,
+                        zorder=4)
+
+        # Trang trí đồ thị
+        ax.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
+        ax.grid(True, linestyle='--', alpha=0.3)
+        ax.set_title('Visibility Graph with Distances', pad=20, fontsize=14)
+
+        # Thêm margin cho đồ thị
+        plt.margins(0.1)
+        plt.tight_layout()
+        plt.axis('equal')
+        plt.show()
+
+    def print_visibility_info(self):
+        """In thông tin về khả năng nhìn thấy và khoảng cách"""
+        print("\nThông tin về khả năng nhìn thấy và khoảng cách:")
+        for point, visible_points in self.visibility_graph.items():
+            print(f"\nTừ điểm ({point.x}, {point.y}) có thể nhìn thấy:")
+            for visible_point in visible_points:
+                distance = self.distances[point][visible_point]
+                print(f"  - Điểm ({visible_point.x}, {visible_point.y}): {distance:.2f} đơn vị")
+
+
 def main():
-    n_polygon = 0
-    poly_list = []
-
+    # Đọc dữ liệu từ file Input.txt
     with open('Input.txt', 'r') as f:
         line = f.readline().strip().split()
-        n_polygon = int(line[0])
         start = Point(int(line[1]), int(line[2]))
         goal = Point(int(line[3]), int(line[4]))
-        poly_list.append([start])
+
+        # Đọc các điểm của đa giác (nhưng chỉ lưu các điểm)
+        points = [start]
         for line in f:
-            points = line.split()
-            n_vertex = int(points[0])
-            poly_list.append([Point(int(points[i + 1]), int(points[i + 2])) for i in range(0, 2 * n_vertex, 2)])
-        poly_list.append([goal])
+            nums = line.split()
+            n_vertex = int(nums[0])
+            for i in range(0, 2 * n_vertex, 2):
+                points.append(Point(int(nums[i + 1]), int(nums[i + 2])))
+        points.append(goal)
 
+        # Tạo đa giác đơn giản chỉ để tính toán khả kiến
+        poly_list = [[p] for p in points]
+
+    # Khởi tạo đồ thị và phân tích khả kiến
     graph = Graph(poly_list)
-    graph.heuristic = {point: point.heuristic(goal) for point in graph.get_points()}
+    analyzer = VisibilityGraphAnalyzer(graph, start, goal)
 
-    # Thực hiện BFS, DFS, UCS, Greedy Search
-    algorithms = {
-        "A* Search": lambda g, s, t: search(g, s, t, a_star),
-        "Greedy Search": lambda g, s, t: search(g, s, t, greedy),
-        "BFS": bfs,
-        "DFS": dfs,
-        "UCS": ucs,
-    }
-    results = {}
-
-    for algo_name, algo_func in algorithms.items():
-        print(f"Chạy thuật toán {algo_name}:")
-        result_node = algo_func(graph, start, goal)
-        result_path = print_result(result_node)
-        results[algo_name] = result_path
-
-    # Vẽ kết quả
-    fig, axes = plt.subplots(1, len(algorithms), figsize=(20, 5))
-    for idx, (algo_name, result) in enumerate(results.items()):
-        visualize(graph, poly_list, start, goal, result, algo_name, axes[idx])
-
-    plt.tight_layout()
-    plt.show()
+    # Tính toán và hiển thị kết quả
+    analyzer.calculate_visibility_graph()
+    analyzer.print_visibility_info()
+    analyzer.visualize()
 
 
 if __name__ == "__main__":
     main()
-
-
