@@ -414,13 +414,12 @@ def main():
         results[algo_name] = result_path
 
     # Vẽ kết quả
-    fig, axes = plt.subplots(1, len(algorithms), figsize=(20, 5))
+    fig, axes = plt.subplots(1, len(algorithms), figsize=(20, 4))
     for idx, (algo_name, result) in enumerate(results.items()):
         visualize(graph, poly_list, start, goal, result, algo_name, axes[idx])
 
     plt.tight_layout()
     plt.show()
-
 
 if __name__ == "__main__":
     main()
