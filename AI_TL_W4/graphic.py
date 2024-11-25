@@ -100,7 +100,6 @@ class Graph:
     def get_adjacent_points(self, point):
         return list(filter(None.__ne__, [edge.get_adjacent(point) for edge in self.edges]))
 
-
     def can_see(self, start):
         see_list = list()
         cant_see_list = list()
