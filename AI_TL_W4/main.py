@@ -375,8 +375,6 @@ def visualize(graph, poly_list, start, goal, result, title, ax):
     ax.plot(path_x, path_y, 'b', linewidth=2.0, label="Path")
     ax.legend()
 
-
-
 # Hàm chính
 def main():
     n_polygon = 0
