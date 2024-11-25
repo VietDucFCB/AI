@@ -390,6 +390,7 @@ import matplotlib.pyplot as plt
 import math
 from collections import defaultdict
 
+
 class VisibilityGraphAnalyzer:
     def __init__(self, graph, start, goal):
         self.graph = graph
