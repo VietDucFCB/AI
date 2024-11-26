@@ -397,6 +397,7 @@ class VisibilityGraphAnalyzer:
         self.visibility_graph = defaultdict(list)
         self.distances = defaultdict(dict)
 
+
     def calculate_visibility_graph(self):
         """Tính toán đồ thị khả kiến và khoảng cách giữa các điểm có thể nhìn thấy nhau"""
         all_points = self.graph.get_points()
