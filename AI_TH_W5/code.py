@@ -16,7 +16,6 @@ class FringeNode(object):
         self.f_value = f_value
         self.c_no = c_no
 
-
 class Graph():
     def __init__(self, vertices):
         self.V = vertices
@@ -207,8 +206,7 @@ def startTSP(graph, tree, V):
             # Evaluate f_values and h_values of adjacent nodes of the node to expand
             while (j < V):
                 if (j != toExpand.c_no):
-                    h = heuristic(tree, toExpand.c_id, j, V,
-                                  graph)  # heuristic calc
+                    h = heuristic(tree, toExpand.c_id, j, V, graph)  # heuristic calc
                     # g(parent) + g(parent - > child) + h(child)
                     f_val = val + graph[j][toExpand.c_no] + h
                     fringe_list[key] = FringeNode(j, f_val)
@@ -221,7 +219,10 @@ def startTSP(graph, tree, V):
 
 if __name__ == '__main__':
     V = 4
-    graph = [[0, 5, 2, 3], [5, 0, 6, 3], [2, 6, 0, 4], [3, 3, 4, 0]]
+    graph = [[0, 2, 0, 1],
+        [2,0, 3, 0 ],
+        [0, 3, 0, 4],
+        [1, 0, 4, 0]]
 
     tree = Tree()
     ans = startTSP(graph, tree, V)
