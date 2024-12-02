@@ -11,8 +11,6 @@ class TreeNode(object):
         self.parent_id = parent_id
 
 # Structure to represent fringe nodes in the A* fringe list
-
-
 class FringeNode(object):
     def __init__(self, c_no, f_value):
         self.f_value = f_value
