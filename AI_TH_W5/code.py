@@ -216,7 +216,6 @@ def startTSP(graph, tree, V):
                     key = key + 1
                 j = j+1
     return cost
-
 if __name__ == '__main__':
     V = 4
     graph = [[0, 2, 0, 1],
