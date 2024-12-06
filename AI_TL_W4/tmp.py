@@ -367,7 +367,6 @@ def print_result(result_node):
     print_res = [[point, point.polygon_id] for point in result]
     print("Đường đi tìm được:", *print_res, sep=' -> ')
     return result
-
 # Hàm hiển thị kết quả
 def visualize(graph, poly_list, start, goal, result, title, ax):
     ax.set_title(title)
