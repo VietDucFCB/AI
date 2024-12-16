@@ -382,6 +382,7 @@ def visualize(graph, poly_list, start, goal, result, title, ax):
     path_y = [p.y for p in result]
     ax.plot(path_x, path_y, 'b', linewidth=2.0, label="Path")
     ax.legend()
+
 import matplotlib.pyplot as plt
 import math
 from collections import defaultdict
