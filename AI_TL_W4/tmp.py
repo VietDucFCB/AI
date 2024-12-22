@@ -373,11 +373,11 @@ def visualize(graph, poly_list, start, goal, result, title, ax):
     ax.plot([start.x], [start.y], 'ro', label="Start")
     ax.plot([goal.x], [goal.y], 'ro', label="Goal")
 
-
     for i in range(1, len(poly_list) - 1):
         coord = [(p.x, p.y) for p in poly_list[i]] + [(poly_list[i][0].x, poly_list[i][0].y)]
         xs, ys = zip(*coord)
         ax.plot(xs, ys)
+
     path_x = [p.x for p in result]
     path_y = [p.y for p in result]
     ax.plot(path_x, path_y, 'b', linewidth=2.0, label="Path")
