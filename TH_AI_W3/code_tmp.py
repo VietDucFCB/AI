@@ -116,7 +116,6 @@ def drawMap(city, gbfs, astar, graph):
     for i in range(len(gbfs)):
         try:
             first = city[gbfs[i]]
-
             second = city[gbfs[i+1]]
 
             plt.plot([first[0], second[0]], [first[1], second[1]], "green")
