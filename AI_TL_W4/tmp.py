@@ -369,7 +369,6 @@ def print_result(result_node):
     return result
 # Hàm hiển thị kết quả
 
-
 def visualize(graph, poly_list, start, goal, result, title, ax):
     ax.set_title(title)
     ax.plot([start.x], [start.y], 'ro', label="Start")
